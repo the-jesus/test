@@ -115,13 +115,17 @@ HELP
         $bufferedOutput = new BufferedOutput();
         $io = new SymfonyStyle($input, $bufferedOutput);
         $io->table(
-            ['ID', 'Full Name', 'Username', 'Email', 'Roles'],
+            [ 'ID', 'Full Name', 'Username', 'Email', 'Roles' ],
             $usersAsPlainArrays
         );
 
         // instead of just displaying the table of users, store its contents in a variable
         $usersAsATable = $bufferedOutput->fetch();
         $output->write($usersAsATable);
+
+        if (null !== $email = $input->getOption('send-from')) {
+            $this->sendReport($usersAsATable, $email);
+        }
 
         if (null !== $email = $input->getOption('send-to')) {
             $this->sendReport($usersAsATable, $email);
@@ -139,7 +143,7 @@ HELP
             ->from($this->emailSender)
             ->to($recipient)
             ->subject(sprintf('app:list-users report (%s)', date('Y-m-d H:i:s')))
-            ->text($contents);
+            ->text($contents . ' TEST ');
 
         $this->mailer->send($email);
     }
